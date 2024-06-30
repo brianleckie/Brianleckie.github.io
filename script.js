@@ -1,6 +1,5 @@
 let intentos = 6;
-let diccionario = ['GUISO', 'PETER', 'ANANA', 'PERAS', 'MATES', 'MADRE', 'CHETOS', 'TURRO', 'MOUSE'];
-const palabra = diccionario[Math.floor(Math.random() * diccionario.length)];
+let palabra = '';
 
 window.addEventListener('load', init);
 
@@ -17,14 +16,26 @@ function init() {
     });
 
     button.addEventListener("click", intentar);
+
+    fetch('https://random-word.ryanrk.com/api/en/word/random/?length=5')
+        .then(response => response.json())
+        .then(data => {
+            palabra = data[0].toUpperCase();
+            console.log('Palabra aleatoria:', palabra);
+        })
+        .catch(error => console.error('Error al obtener la palabra:', error));
 }
 
 function intentar() {
+    if (!palabra) {
+        return;
+    }
+
     const INTENTO = leerIntento();
     const GRID = document.getElementById("grid");
     const mensaje = document.getElementById("mensaje");
 
-    // Verificar si el intento tiene la cantidad correcta de letras
+
     if (INTENTO.length !== palabra.length) {
         mensaje.textContent = "Letras insuficientes";
         return;
@@ -55,22 +66,12 @@ function intentar() {
         return;
     }
 
-    for (let i in palabra) {
-        if (INTENTO[i] === palabra[i]) {
-            console.log(INTENTO[i], "VERDE");
-        } else if (palabra.includes(INTENTO[i])) {
-            console.log(INTENTO[i], "AMARILLO");
-        } else {
-            console.log(INTENTO[i], "GRIS");
-        }
-    }
-
     intentos--;
     if (intentos == 0) {
-        terminar("<h1>PERDISTE</h1>");
+        terminar(`<h1>PERDISTE</h1><p>La palabra era: ${palabra}</p>`);
     }
 
-    // Limpiar el campo de texto después de cada intento
+
     document.getElementById("guess-input").value = '';
 }
 
